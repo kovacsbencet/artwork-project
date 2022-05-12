@@ -2,34 +2,18 @@ import React, {useState, useEffect} from "react";
 import Artwork from './components/Artwork'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './App.css';
-import ArtworkDetails from "./components/ArtworkDetails";
+
 
 function App() {
-/* 
-  const [id, setId] = useState(0);
-  const [name, setName] = useState('');
-  const [creator, setCreator] = useState('');
-  const [description, setDescription] = useState('');
-  const [price, setPrice] = useState(0);
-  const [image, setImage] = useState("")
-  */
-  const [artworks, setArtworks] = useState([])
-/*  
-  const addToDatabase = () => {
-    console.log(id, name, creator, description, price, image)
-    
-    const data = {id: id , name: name, creator: creator, description: description, price: price, image: image};
 
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    };
-    fetch("http://localhost:3001/insert", requestOptions)
-      .then(response => response.json())
-      .then(res => console.log(res));
-  }
- */
+  const [artworks, setArtworks] = useState([])
+  const [input, setInput] = useState("")
+  const [sortprice, setSortPrice] = useState("desc")
+  const [pricebutton, setPriceButton] = useState("High to Low")
+  const [sortname, setSortName] = useState("abc")
+  const [namebutton, setNameButton] = useState("ABC sort")
+  const [checkvalue, setCheckValue] = useState("")
+
   async function fetchArtworks(){
 
     const response = await fetch("http://localhost:3001/read")
@@ -43,21 +27,44 @@ function App() {
     fetchArtworks()
   }, [])
 
+  function sortPrice(){
+    setArtworks([...artworks.sort((a, b) => sortprice === "desc" ? b.price - a.price : a.price - b.price)])
+    setSortPrice(sortprice === "desc" ? "asc" : "desc")
+    setPriceButton(pricebutton === "High to Low" ? "Low to High" : "High to Low")
+  }
+
+  function sortName(){
+    setArtworks([...artworks.sort((a, b) => sortname === "abc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name))])
+    setSortName(sortname === "abc" ? "cba" : "abc")
+    setNameButton(namebutton === "ABC sort" ? "CBA sort" : "ABC sort")
+  }
+
+  function sortCreator(){
+    setArtworks(artworks.filter())
+  }
+
+
   return (
     <BrowserRouter>
+    <>
       <div className="App">
-{/*         
-          <h1>Secret Artworks</h1>
-          <input type="number" name="" id="" placeholder="Add new ID to artwork." onChange={(({target}) => setId(target.value))}/>
-          <input type="text" name="" id="" placeholder="Add the name of the artwork." onChange={(({target}) => setName(target.value))}/>
-          <input type="text" name="" id="" placeholder="Add the creator of the artwork." onChange={(({target}) => setCreator(target.value))}/>
-          <input type="text" name="" id="" placeholder="Add the description of the artwork." onChange={(({target}) => setDescription(target.value))}/>
-          <input type="number" name="" id="" placeholder="Add new price to artwork." onChange={(({target}) => setId(target.value))}/>
-          <input type="file" name="" id="" placeholder="Add new price to artwork." onChange={(({target}) => setId(target.value))}/>
-          <button onClick={addToDatabase}>Add Artwork</button>
- */}
-        {artworks.map(({_id, name, creator, description, price, image}) => <Artwork key={_id} name={name} creator={creator} description={description} price={price} image={image}/>)}
+        <h1>Filter Artworks</h1>
+        <input type="text" name="title" placeholder="Search by title..." value={input} onChange={({target}) => {setInput(target.value)}}/>
+        <div className="creatorFilter">
+          <input onChange={({target}) => {console.log(target.value)}} type="checkbox" id="joemama" name="joemama" value="joemama"/>
+          <label for="joemama">Joe Mama</label>
+          <input type="checkbox" id="bendover" name="bendover" value="bendover"/>
+          <label for="bendover">Ben Dover</label>
+          <input type="checkbox" id="mikeoxlong" name="mikeoxlong" value="mikeoxlong"/>
+          <label for="mikeoxlong">Mike Oxlong</label>
+        </div>
+        <button onClick={sortName}>{namebutton}</button> 
+        <button onClick={sortPrice}>{pricebutton}</button> 
+        {artworks.map(({_id, name, creator, description, price, image}) => 
+        (name.toLowerCase().includes(input.toLowerCase()) && 
+        <Artwork key={_id} name={name} creator={creator} description={description} price={price} image={image}/>))}
       </div>
+    </>
     </BrowserRouter>
   );
 }
